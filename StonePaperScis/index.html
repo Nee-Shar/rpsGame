@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Teachable Machine Image Model Demo</title>
+  </head>
+  <body>
+    <div>Teachable Machine Image Model</div>
+    <h1>Max Probability: <span id="max-probability"></span></h1>
+    <h2 id="fight"> </h2>
+    <button type="button" onclick="init()">Start</button>
+    <button type="button" onclick="predict()">Fight</button>
+    <h3>Pc Score : <span id="ps"></span></h3>
+    <h3>Your Score: <span id="ys"></span></h3>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+      // the link to your model provided by Teachable Machine export panel
+      //const URL = "https://teachablemachine.withgoogle.com/models/my_model/";
+     // const URL = "TM-MY-IMAGE-MODEL/";
+     const URL = "./Hey/";
+
+      let model, webcam, labelContainer, maxPredictions, pc;
+     var pcPoints=0;
+    var UserPoints=0;
+      // Load the image model and setup the webcam
+      async function init() {
+        const modelURL = "model.json";
+        const metadataURL = "metadata.json";
+
+        // load the model and metadata
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+          labelContainer.appendChild(document.createElement("div"));
+        }
+
+        // Generate random move for computer
+
+        const min = 1;
+        const max = 3;
+        const randomNumber = Math.floor(Math.random() * (max - min + 1) + min);
+        if(randomNumber==1) pc="Stone";
+        else if(randomNumber==2) pc="Paper";
+        else pc="Scissors";
+      }
+
+      async function loop() {
+        webcam.update(); // update the webcam frame
+        window.requestAnimationFrame(loop);
+      }
+
+      // run the webcam image through the image model
+      async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        let maxProbability = 0;
+        let maxProbabilityIndex = 0;
+        for (let i = 0; i < maxPredictions; i++) {
+          const classPrediction =
+              prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+          labelContainer.childNodes[i].innerHTML = classPrediction;
+          if (prediction[i].probability > maxProbability) {
+            maxProbability = prediction[i].probability;
+            maxProbabilityIndex = i;
+          }
+        }
+        document.getElementById("max-probability").innerHTML =
+            prediction[maxProbabilityIndex].className + " (" + maxProbability.toFixed(2) + ")";
+        document.getElementById("fight").innerHTML
+=pc+" vs "+ prediction[maxProbabilityIndex].className ;
+
+
+if(prediction[maxProbabilityIndex].className=='Paper' && pc=='Stone') UserPoints++;
+else if(prediction[maxProbabilityIndex].className=='Paper' && pc=='Scissors') pcPoints++;
+else if(prediction[maxProbabilityIndex].className=='Stone' && pc=='Paper') pcPoints++;
+else if(prediction[maxProbabilityIndex].className=='Stone' && pc=='Scissors') UserPoints++;
+else if(prediction[maxProbabilityIndex].className=='Scissors' && pc=='Paper') UserPoints++;
+else if(prediction[maxProbabilityIndex].className=='Scissors' && pc=='Stone') pcPoints++;
+
+setTimeout(() => {
+  document.getElementById("ps").innerHTML = pcPoints;
+  document.getElementById("ys").innerHTML = UserPoints;
+}, 500);
+
+
+
+
+      }
+
+    </script>
+  </body>
+</html>
