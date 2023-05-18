@@ -27,3 +27,5 @@ Prepare yourself for an unforgettable experience as you partake in the timeless 
 
 Site live at https://paperstonescissor.netlify.app/
 
+PS(This fancy English is written by ChatGpt ).
+
