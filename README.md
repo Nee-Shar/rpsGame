@@ -25,3 +25,5 @@ Prepare yourself for an unforgettable experience as you partake in the timeless 
 ![image](https://github.com/Nee-Shar/rpsGame/assets/99169026/f982d53a-9eaa-4ba0-8143-83aec797b397)
 
 
+Site live at https://paperstonescissor.netlify.app/
+
